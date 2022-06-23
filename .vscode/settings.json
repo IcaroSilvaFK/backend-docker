@@ -1,0 +1,12 @@
+{
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true,
+    "source.organizeImports": true
+  },
+  "[prisma]": {
+    "editor.formatOnSave": true
+  },
+  "editor.inlineSuggest.enabled": true,
+  "workbench.tree.indent": 17
+}
