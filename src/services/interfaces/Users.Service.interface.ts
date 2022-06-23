@@ -7,8 +7,9 @@ export interface IUserProps {
 }
 
 export interface IUsersService {
-  create(data: IUserProps): Promise<User>;
+  create(data: IUserProps): Promise<Partial<User>>;
   delete(id: string): Promise<void>;
   update(id: string, data: Partial<IUserProps>): Promise<User>;
   findMany(): Promise<User[]>;
+  login(email: string, password: string): Promise<Partial<User>>;
 }

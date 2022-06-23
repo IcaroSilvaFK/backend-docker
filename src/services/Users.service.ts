@@ -1,5 +1,6 @@
 import { User } from '@prisma/client';
 import bcrypt from 'bcrypt';
+import { AppError } from '../Errors/App.error';
 
 import { IUsersRepository } from '../repositories/interfaces/UserRepository.interface';
 import {
@@ -10,7 +11,11 @@ import {
 export class UserService implements IUsersService {
   constructor(private readonly usersRepository: IUsersRepository) {}
 
-  async create({ email, password, userName }: IUserProps): Promise<User> {
+  async create({
+    email,
+    password,
+    userName,
+  }: IUserProps): Promise<Partial<User>> {
     const paswordHash = await bcrypt.hash(password, 10);
     const newUser = await this.usersRepository.create({
       email,
@@ -31,5 +36,18 @@ export class UserService implements IUsersService {
   async findMany(): Promise<User[]> {
     const allUsers = await this.usersRepository.findMany();
     return allUsers;
+  }
+  async login(email: string, password: string): Promise<Partial<User>> {
+    const user = await this.usersRepository.login(email, password);
+
+    const passwordmatch = await bcrypt.compare(password, user.password);
+
+    if (!passwordmatch) {
+      throw new AppError('Invalid email or password', 400);
+    }
+
+    delete user.password;
+
+    return user;
   }
 }

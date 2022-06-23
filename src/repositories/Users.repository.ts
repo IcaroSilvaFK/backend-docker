@@ -1,4 +1,6 @@
+import { Prisma, User } from '@prisma/client';
 import { prismaClient } from '../configs/prisma';
+import { AppError } from '../Errors/App.error';
 import {
   IUserProps,
   IUsersRepository,
@@ -6,37 +8,89 @@ import {
 
 export class UsersRepository implements IUsersRepository {
   async create({ email, password, userName }: IUserProps) {
-    const newUser = await prismaClient.user.create({
-      data: {
-        userName,
-        email,
-        password,
-      },
-    });
+    try {
+      const newUser = await prismaClient.user.create({
+        data: {
+          userName,
+          email,
+          password,
+        },
+        select: {
+          email: true,
+          id: true,
+          userName: true,
+        },
+      });
 
-    return newUser;
+      return newUser;
+    } catch (err) {
+      if (err instanceof Prisma.PrismaClientUnknownRequestError) {
+        throw new AppError(err.message, 500);
+      }
+      throw new AppError('Internal server error', 500);
+    }
   }
   async update(id: string, data: Partial<IUserProps>) {
-    const updatedUser = await prismaClient.user.update({
-      where: {
-        id,
-      },
-      data,
-    });
+    try {
+      const updatedUser = await prismaClient.user.update({
+        where: {
+          id,
+        },
+        data,
+      });
 
-    return updatedUser;
+      return updatedUser;
+    } catch (err) {
+      if (err instanceof Prisma.PrismaClientUnknownRequestError) {
+        throw new AppError(err.message, 500);
+      }
+      throw new AppError('Internal server error', 500);
+    }
   }
 
   async delete(id: string) {
-    await prismaClient.user.delete({
-      where: {
-        id,
-      },
-    });
+    try {
+      await prismaClient.user.delete({
+        where: {
+          id,
+        },
+      });
+    } catch (err) {
+      if (err instanceof Prisma.PrismaClientUnknownRequestError) {
+        throw new AppError(err.message, 500);
+      }
+      throw new AppError('Internal server error', 500);
+    }
   }
   async findMany() {
-    const allUsers = await prismaClient.user.findMany();
+    try {
+      const allUsers = await prismaClient.user.findMany();
 
-    return allUsers;
+      return allUsers;
+    } catch (err) {
+      if (err instanceof Prisma.PrismaClientUnknownRequestError) {
+        throw new AppError(err.message, 500);
+      }
+      throw new AppError('Internal server error', 500);
+    }
+  }
+  async login(password: string, email: string): Promise<User> {
+    try {
+      const user = await prismaClient.user.findFirst({
+        where: {
+          email,
+        },
+      });
+      if (!user) {
+        throw new AppError('User not exists in', 404);
+      }
+
+      return user;
+    } catch (err) {
+      if (err instanceof Prisma.PrismaClientUnknownRequestError) {
+        throw new AppError(err.message, 500);
+      }
+      throw new AppError('Internal server error', 500);
+    }
   }
 }
