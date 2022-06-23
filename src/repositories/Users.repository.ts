@@ -1,5 +1,3 @@
-import bcrypt from 'bcrypt';
-
 import { prismaClient } from '../configs/prisma';
 import {
   IUserProps,
@@ -8,13 +6,11 @@ import {
 
 export class UsersRepository implements IUsersRepository {
   async create({ email, password, userName }: IUserProps) {
-    const hashPassword = await bcrypt.hash(password, 10);
-
     const newUser = await prismaClient.user.create({
       data: {
         userName,
         email,
-        password: hashPassword,
+        password,
       },
     });
 
