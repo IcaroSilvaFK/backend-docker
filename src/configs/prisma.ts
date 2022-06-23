@@ -1,11 +1,11 @@
 import { PrismaClient } from '@prisma/client';
 
-const api = new PrismaClient();
+const prismaClient = new PrismaClient();
 
 async function main() {
-  await api.$connect();
+  await prismaClient.$connect();
 }
 
 main();
 
-export { api };
+export { prismaClient };
