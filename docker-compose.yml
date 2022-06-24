@@ -2,12 +2,25 @@ version: '3'
 
 services:
   database:
-    image: 'postgres:latest'
+    build: .docker/postgres
+    container_name: react_backend
+    restart: always
+    tty: true
     ports:
-      - 5432:5432
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: react_native
+      - '5432:5432'
     volumes:
-      - ./db-data/:/var/postgressql/data/
+      - .docker/dbdata:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=reactbackend
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    tty: true
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    ports:
+      - '8000:80'
+    depends_on:
+      - database

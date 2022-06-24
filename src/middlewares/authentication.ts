@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import { prismaClient } from '../configs/prisma';
 
 export async function authentication(
   request: Request,
@@ -20,20 +19,21 @@ export async function authentication(
   try {
     const jwtVerify = jwt.verify(token, 'whyy');
     const { id } = request.body;
-    const userExists = await prismaClient.token.findFirst({
-      where: {
-        userId: id,
-      },
-    });
+    // const userExists = await prismaClient.token.findFirst({
+    //   where: {
+    //     userId: id,
+    //   },
+    // });
 
-    if (!userExists) {
-      await prismaClient.token.create({
-        data: {
-          userId: id,
-          token,
-        },
-      });
-    }
+    // if (!userExists) {
+    //   await prismaClient.token.create({
+    //     data: {
+    //       userId: id,
+    //       token,
+    //     },
+    //   });
+    // }
+    next();
   } catch (err) {
     return response.status(403).json({
       message: 'Token is invalid',

@@ -8,6 +8,14 @@ import {
 
 export class UsersRepository implements IUsersRepository {
   async create({ email, password, userName }: IUserProps) {
+    const userExists = await prismaClient.user.findFirst({
+      where: { email },
+    });
+
+    if (userExists) {
+      throw new AppError('User exists in database', 400);
+    }
+
     try {
       const newUser = await prismaClient.user.create({
         data: {
@@ -22,7 +30,7 @@ export class UsersRepository implements IUsersRepository {
           password: true,
         },
       });
-      console.log(newUser);
+
       return newUser;
     } catch (err) {
       if (err instanceof Prisma.PrismaClientUnknownRequestError) {
