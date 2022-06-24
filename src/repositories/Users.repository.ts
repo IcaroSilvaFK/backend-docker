@@ -19,9 +19,10 @@ export class UsersRepository implements IUsersRepository {
           email: true,
           id: true,
           userName: true,
+          password: true,
         },
       });
-
+      console.log(newUser);
       return newUser;
     } catch (err) {
       if (err instanceof Prisma.PrismaClientUnknownRequestError) {
@@ -64,7 +65,13 @@ export class UsersRepository implements IUsersRepository {
   }
   async findMany() {
     try {
-      const allUsers = await prismaClient.user.findMany();
+      const allUsers = await prismaClient.user.findMany({
+        select: {
+          email: true,
+          userName: true,
+          orders: true,
+        },
+      });
 
       return allUsers;
     } catch (err) {
@@ -74,7 +81,7 @@ export class UsersRepository implements IUsersRepository {
       throw new AppError('Internal server error', 500);
     }
   }
-  async login(password: string, email: string): Promise<User> {
+  async login(email: string): Promise<User> {
     try {
       const user = await prismaClient.user.findFirst({
         where: {

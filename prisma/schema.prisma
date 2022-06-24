@@ -17,6 +17,7 @@ model User{
   email String @unique
   password String 
   orders Order[]
+  token Token?
   @@map("users")
 }
 
@@ -34,4 +35,13 @@ model Order{
   concluded Boolean @default(false)
 
   @@map("orders")
+}
+
+model Token {
+  id String @id @default(cuid())
+  token String
+  userId String @unique 
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("tokens")
 }

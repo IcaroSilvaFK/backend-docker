@@ -1,4 +1,4 @@
-import { User } from '@prisma/client';
+import { Order, User } from '@prisma/client';
 
 export interface IUserProps {
   userName: string;
@@ -6,10 +6,16 @@ export interface IUserProps {
   password: string;
 }
 
+type FindManyProps = {
+  userName: string;
+  email: string;
+  orders: Order[];
+};
+
 export interface IUsersRepository {
   create(data: IUserProps): Promise<Partial<User>>;
   delete(id: string): Promise<void>;
   update(id: string, data: Partial<IUserProps>): Promise<User>;
-  findMany(): Promise<User[]>;
-  login(password: string, email: string): Promise<User>;
+  findMany(): Promise<FindManyProps[]>;
+  login(email: string): Promise<User>;
 }

@@ -2,15 +2,18 @@ import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 
 import { AppError } from '../Errors/App.error';
+import { ITokenService } from '../services/interfaces/Token.Service.interface';
 import { IUsersService } from '../services/interfaces/Users.Service.interface';
 import { IUsersController } from './interfaces/UsersController.interface';
 
 export class UsersController implements IUsersController {
-  constructor(private readonly usersService: IUsersService) {}
+  constructor(
+    private readonly usersService: IUsersService,
+    private readonly tokenService: ITokenService,
+  ) {}
 
   async create(request: Request, response: Response): Promise<Response> {
     const { userName, email, password } = request.body;
-
     if (!userName || !email || !password) {
       return response.status(400).json({
         message: 'username email or password as missing a type',
@@ -24,8 +27,7 @@ export class UsersController implements IUsersController {
         email,
         password,
       });
-
-      const token = jwt.sign(
+      const jwtToken = jwt.sign(
         {
           id: newUser.id,
         },
@@ -34,7 +36,7 @@ export class UsersController implements IUsersController {
           expiresIn: 1000 * 1000,
         },
       );
-
+      const { token } = await this.tokenService.create(newUser.id, jwtToken);
       return response.status(201).json({
         user: newUser,
         token,
@@ -66,8 +68,19 @@ export class UsersController implements IUsersController {
     try {
       const updatedUser = await this.usersService.update(id, data);
 
+      const token = jwt.sign(
+        {
+          id: updatedUser.id,
+        },
+        'whyy',
+        {
+          expiresIn: 1000 * 1000,
+        },
+      );
+
       return response.status(200).json({
         user: updatedUser,
+        token,
         timesTamp: new Date().toDateString(),
       });
     } catch (err) {
@@ -149,7 +162,7 @@ export class UsersController implements IUsersController {
 
     try {
       const user = await this.usersService.login(email, password);
-      const token = jwt.sign(
+      const jwtToken = jwt.sign(
         {
           id: user.id,
         },
@@ -158,7 +171,7 @@ export class UsersController implements IUsersController {
           expiresIn: 1000 * 1000,
         },
       );
-
+      const { token } = await this.tokenService.update(user.id, jwtToken);
       return response.status(200).json({
         user,
         token,

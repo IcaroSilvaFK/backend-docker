@@ -1,4 +1,4 @@
-import { User } from '@prisma/client';
+import { Order, User } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import { AppError } from '../Errors/App.error';
 
@@ -33,12 +33,18 @@ export class UserService implements IUsersService {
 
     return updatedUser;
   }
-  async findMany(): Promise<User[]> {
+  async findMany(): Promise<
+    {
+      userName: string;
+      email: string;
+      orders: Order[];
+    }[]
+  > {
     const allUsers = await this.usersRepository.findMany();
     return allUsers;
   }
   async login(email: string, password: string): Promise<Partial<User>> {
-    const user = await this.usersRepository.login(email, password);
+    const user = await this.usersRepository.login(email);
 
     const passwordmatch = await bcrypt.compare(password, user.password);
 
