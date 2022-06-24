@@ -1,4 +1,6 @@
 import { Router } from 'express';
+import { authentication } from '../middlewares/authentication';
+import { tokenFactory } from '../provider/TokenFactory';
 import { userFactory } from '../provider/UsersFactory';
 
 const router = Router();
@@ -14,8 +16,12 @@ router.post('/login/user', (request, response) => {
   userFactory().login(request, response);
 });
 
-router.get('/users', (request, response) => {
+router.get('/users', authentication, (request, response) => {
   userFactory().findAll(request, response);
+});
+
+router.put('/token/refresh', authentication, (request, response) => {
+  tokenFactory().refresh(request, response);
 });
 
 export { router };

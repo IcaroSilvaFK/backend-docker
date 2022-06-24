@@ -40,8 +40,8 @@ model Order{
 model Token {
   id String @id @default(cuid())
   token String
-  userId String @unique 
+  userId String   @map("user_id")
   user User @relation(fields: [userId], references: [id])
 
-  @@map("tokens")
+  @@map("refresh_token")
 }

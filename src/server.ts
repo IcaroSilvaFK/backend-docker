@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { app } from './main';
 
 const PORT = 8080;

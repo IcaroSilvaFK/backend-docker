@@ -8,6 +8,8 @@ import {
   IUsersService,
 } from './interfaces/Users.Service.interface';
 
+const SALT = 10;
+
 export class UserService implements IUsersService {
   constructor(private readonly usersRepository: IUsersRepository) {}
 
@@ -16,13 +18,13 @@ export class UserService implements IUsersService {
     password,
     userName,
   }: IUserProps): Promise<Partial<User>> {
-    const paswordHash = await bcrypt.hash(password, 10);
+    const paswordHash = await bcrypt.hash(password, SALT);
     const newUser = await this.usersRepository.create({
       email,
       userName,
       password: paswordHash,
     });
-
+    delete newUser.password;
     return newUser;
   }
   async delete(id: string): Promise<void> {

@@ -1,10 +1,12 @@
 import { Request, Response } from 'express';
-import jwt from 'jsonwebtoken';
 
 import { AppError } from '../Errors/App.error';
 import { ITokenService } from '../services/interfaces/Token.Service.interface';
 import { IUsersService } from '../services/interfaces/Users.Service.interface';
 import { IUsersController } from './interfaces/UsersController.interface';
+
+const key = process.env.SECRET_JSON_WEBTOKEN;
+const expires = 5000;
 
 export class UsersController implements IUsersController {
   constructor(
@@ -27,16 +29,8 @@ export class UsersController implements IUsersController {
         email,
         password,
       });
-      const jwtToken = jwt.sign(
-        {
-          id: newUser.id,
-        },
-        'whyy',
-        {
-          expiresIn: 1000 * 1000,
-        },
-      );
-      const { token } = await this.tokenService.create(newUser.id, jwtToken);
+
+      const token = await this.tokenService.create(newUser.id);
       return response.status(201).json({
         user: newUser,
         token,
@@ -68,19 +62,8 @@ export class UsersController implements IUsersController {
     try {
       const updatedUser = await this.usersService.update(id, data);
 
-      const token = jwt.sign(
-        {
-          id: updatedUser.id,
-        },
-        'whyy',
-        {
-          expiresIn: 1000 * 1000,
-        },
-      );
-
       return response.status(200).json({
         user: updatedUser,
-        token,
         timesTamp: new Date().toDateString(),
       });
     } catch (err) {
@@ -162,16 +145,8 @@ export class UsersController implements IUsersController {
 
     try {
       const user = await this.usersService.login(email, password);
-      const jwtToken = jwt.sign(
-        {
-          id: user.id,
-        },
-        'whyy',
-        {
-          expiresIn: 1000 * 1000,
-        },
-      );
-      const { token } = await this.tokenService.update(user.id, jwtToken);
+
+      const token = await this.tokenService.update(user.id);
       return response.status(200).json({
         user,
         token,

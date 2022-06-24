@@ -1,6 +1,6 @@
 import { Token } from '@prisma/client';
 
 export interface ITokenService {
-  create(id: string, token: string): Promise<Token>;
-  update(id: string, token: string): Promise<Token>;
+  create(userId: string): Promise<Token>;
+  update(userId: string, oldToken?: string): Promise<Token>;
 }
