@@ -96,6 +96,7 @@ export class UsersRepository implements IUsersRepository {
           email,
         },
       });
+
       if (!user) {
         throw new AppError('User not exists in', 404);
       }

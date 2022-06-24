@@ -146,7 +146,8 @@ export class UsersController implements IUsersController {
     try {
       const user = await this.usersService.login(email, password);
 
-      const token = await this.tokenService.update(user.id);
+      const token = await this.tokenService.create(user.id);
+
       return response.status(200).json({
         user,
         token,
