@@ -1,21 +1,24 @@
-import { Token } from '@prisma/client';
 import { sign } from 'jsonwebtoken';
 
 import { prismaClient } from '../configs/prisma';
 import { AppError } from '../Errors/App.error';
 
-import { ITokenRepository } from './interfaces/TokenRepository.interface';
+import {
+  ITokenRepository,
+  ResponseType,
+} from './interfaces/TokenRepository.interface';
 
 const key = process.env.SECRET_JSON_WEBTOKEN;
 const time = 6000;
 
 export class TokenRepository implements ITokenRepository {
-  async create(userId: string, oldToken?: string): Promise<Token> {
+  async create(userId: string, oldToken?: string): Promise<ResponseType> {
     const tokenExists = await prismaClient.token.findFirst({
       where: {
         userId,
       },
     });
+
     const token = sign(
       {
         id: userId,
@@ -26,11 +29,15 @@ export class TokenRepository implements ITokenRepository {
         subject: userId,
       },
     );
+
     if (!tokenExists) {
       const tokenDatabase = await prismaClient.token.create({
         data: {
           userId,
           token,
+        },
+        select: {
+          token: true,
         },
       });
 
@@ -39,19 +46,24 @@ export class TokenRepository implements ITokenRepository {
     if (oldToken && oldToken !== tokenExists.token) {
       throw new AppError('Token is invalid', 401);
     }
+
     const newtoken = await prismaClient.token.update({
       where: {
-        userId,
+        id: tokenExists.id,
       },
       data: {
         token,
+        userId: tokenExists.userId,
+      },
+      select: {
+        token: true,
       },
     });
 
     return newtoken;
   }
 
-  async update(userId: string, oldToken: string) {
+  async update(userId: string, oldToken?: string) {
     const refreshToken = await prismaClient.token.findFirst({
       where: {
         userId,

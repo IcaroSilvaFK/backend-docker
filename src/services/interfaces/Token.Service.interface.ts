@@ -1,6 +1,7 @@
-import { Token } from '@prisma/client';
-
+export type ResponseType = {
+  token: string;
+};
 export interface ITokenService {
-  create(userId: string): Promise<Token>;
-  update(userId: string, oldToken?: string): Promise<Token>;
+  create(userId: string): Promise<ResponseType>;
+  update(userId: string, oldToken?: string): Promise<ResponseType>;
 }
