@@ -5,9 +5,6 @@ import { ITokenService } from '../services/interfaces/Token.Service.interface';
 import { IUsersService } from '../services/interfaces/Users.Service.interface';
 import { IUsersController } from './interfaces/UsersController.interface';
 
-const key = process.env.SECRET_JSON_WEBTOKEN;
-const expires = 5000;
-
 export class UsersController implements IUsersController {
   constructor(
     private readonly usersService: IUsersService,
